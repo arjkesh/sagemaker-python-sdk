@@ -15,6 +15,8 @@ from __future__ import absolute_import
 from sagemaker import image_uris
 from tests.unit.sagemaker.image_uris import expected_uris
 from sagemaker.fw_utils import GRAVITON_ALLOWED_FRAMEWORKS
+from packaging.version import Version
+from packaging.specifiers import SpecifierSet
 
 import pytest
 
@@ -184,10 +186,13 @@ def test_graviton_sklearn_image_scope_specified_x86_instance(graviton_sklearn_un
 
 
 def _expected_graviton_framework_uri(framework, version, py_version, account, region):
+    # PT 2.4 and above switches to UL 22
+    container_version = "ubuntu22.04-sagemaker" if Version(version) in SpecifierSet(">=2.4") else "ubuntu20.04-sagemaker"
     return expected_uris.graviton_framework_uri(
         "{}-inference-graviton".format(framework),
         fw_version=version,
         py_version=py_version,
         account=account,
         region=region,
+        container_version=container_version
     )
